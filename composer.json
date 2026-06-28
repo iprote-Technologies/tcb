@@ -1,0 +1,58 @@
+{
+    "name": "iprote/tcb-cms",
+    "description": "Production-ready Laravel package for TCB Bank CMS API integration — payments, IPN, reconciliation, and loan disbursement.",
+    "keywords": ["laravel", "tcb", "tanzania", "payment", "cms", "banking", "ipn", "reconciliation"],
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://github.com/iprote-Technologies/tcb",
+    "support": {
+        "issues": "https://github.com/iprote-Technologies/tcb/issues",
+        "source": "https://github.com/iprote-Technologies/tcb"
+    },
+    "authors": [
+        {
+            "name": "Dr Constantino Msigwa",
+            "email": "info@iprote.co.tz",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/contracts": "^11.0|^12.0|^13.0",
+        "illuminate/database": "^11.0|^12.0|^13.0",
+        "illuminate/http": "^11.0|^12.0|^13.0",
+        "illuminate/routing": "^11.0|^12.0|^13.0",
+        "illuminate/support": "^11.0|^12.0|^13.0",
+        "illuminate/queue": "^11.0|^12.0|^13.0",
+        "illuminate/events": "^11.0|^12.0|^13.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0|^10.0|^11.0",
+        "phpunit/phpunit": "^11.0|^12.0|^13.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Iprote\\TcbCms\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Iprote\\TcbCms\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Iprote\\TcbCms\\TcbCmsServiceProvider"
+            ],
+            "aliases": {
+                "TCB": "Iprote\\TcbCms\\Facades\\TCB"
+            }
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true
+    }
+}

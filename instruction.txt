@@ -1,0 +1,671 @@
+# Prompt: Develop a Production-Ready Laravel Package for TCB Bank CMS API Integration
+
+Develop a **production-ready Laravel Package** named **`iprote/tcb-cms`** that integrates with the **TCB Bank CMS API** for payment collection, instant payment notifications (IPN), reconciliation, reference number cancellation, loan disbursement, and other future CMS services.
+
+The package must be designed as a reusable Composer package that can be installed into any Laravel application.
+
+The implementation should follow Laravel package best practices and support Laravel **11+, 12+, and 13+**.
+
+---
+
+developer; Dr constantino msigwa
+company: iprote technologies limited
+
+# Primary Design Goals
+
+The package must be:
+
+* Clean Architecture
+* SOLID Principles
+* PSR-12 Compliant
+* Fully Testable
+* Queue Friendly
+* Multi-Branch Ready
+* Multi-Account Ready
+* Extensible for future TCB APIs
+* Event Driven
+* Webhook Based
+* Highly Configurable
+
+---
+
+# Authentication
+
+The package should **NOT** require account numbers inside the `.env` file.
+
+Only API credentials should be configured in `.env`.
+
+Example:
+
+```env
+TCB_API_KEY=
+TCB_PARTNER_CODE=
+TCB_BASE_URL=
+TCB_WEBHOOK_SECRET=
+TCB_TIMEOUT=30
+TCB_VERIFY_SSL=true
+TCB_LOGGING=true
+TCB_QUEUE_CONNECTION=database
+```
+
+Everything else should come from the database.
+
+---
+
+# Multi Branch Support
+
+The package must support unlimited branches.
+
+Each branch may have:
+
+* Collection Account
+* Disbursement Account
+* Branch Code
+* Branch Name
+* Currency
+* Status
+
+Example
+
+Branch A
+
+Collection Account
+
+173200000001
+
+Disbursement Account
+
+173200000002
+
+Branch B
+
+Collection Account
+
+173200000003
+
+Disbursement Account
+
+173200000004
+
+The package should never assume there is only one bank account.
+
+---
+
+# Database Driven Accounts
+
+Instead of using ENV variables for bank accounts, all bank accounts shall be stored in database tables.
+
+Example tables
+
+## tcb_branches
+
+* id
+* name
+* code
+* status
+
+## tcb_bank_accounts
+
+* id
+* branch_id
+* account_name
+* account_number
+* profile_id
+* account_type
+
+Values
+
+Collection
+
+Disbursement
+
+Settlement
+
+Loan Collection
+
+Savings
+
+General Collection
+
+* currency
+* is_default
+* status
+
+This allows one branch to own multiple TCB accounts.
+
+---
+
+# Account Resolution
+
+Whenever an API request is made, the package should automatically determine the correct account.
+
+Example
+
+Loan Application Fee
+
+↓
+
+Branch
+
+↓
+
+Default Collection Account
+
+↓
+
+Profile ID
+
+↓
+
+Send API Request
+
+Loan Disbursement
+
+↓
+
+Branch
+
+↓
+
+Default Disbursement Account
+
+↓
+
+Transfer
+
+The application using the package should never manually pass profile IDs unless overriding defaults.
+
+---
+
+# Package Modules
+
+Create the package with the following modules.
+
+## Configuration Module
+
+Publishable config
+
+config/tcb.php
+
+---
+
+## Branch Module
+
+Manage
+
+* Branches
+* Account Mapping
+* Default Accounts
+* Profile IDs
+
+---
+
+## Reference Number Module
+
+Supports
+
+Generate Reference Number
+
+Cancel Reference Number
+
+Reference Validation
+
+Reference Lookup
+
+Reference History
+
+---
+
+## Payment Module
+
+Supports
+
+Payment Notifications
+
+Payment Verification
+
+Payment Status
+
+Duplicate Detection
+
+Payment Query
+
+---
+
+## Loan Module
+
+Supports
+
+Loan Application Fee
+
+Loan Repayment
+
+Loan Disbursement
+
+Transaction Tracking
+
+---
+
+## Reconciliation Module
+
+Supports
+
+Daily Reconciliation
+
+Date Range Reconciliation
+
+Transaction Lookup
+
+Receipt Lookup
+
+Export
+
+---
+
+## Webhook Module
+
+Receive IPN
+
+Verify Signature
+
+Store Payload
+
+Retry Failed Processing
+
+Replay Webhooks
+
+Queue Processing
+
+---
+
+## Event Module
+
+Fire Laravel Events
+
+ReferenceCreated
+
+ReferenceCancelled
+
+PaymentReceived
+
+PaymentFailed
+
+DisbursementCompleted
+
+DisbursementFailed
+
+ReconciliationCompleted
+
+WebhookReceived
+
+---
+
+## Queue Module
+
+Every API call should optionally execute through queues.
+
+Support
+
+Sync
+
+Database
+
+Redis
+
+SQS
+
+---
+
+## Logging Module
+
+Log every
+
+API Request
+
+API Response
+
+Webhook
+
+Errors
+
+Retries
+
+Response Times
+
+---
+
+# Database Tables
+
+Create migrations for
+
+tcb_branches
+
+tcb_bank_accounts
+
+tcb_reference_numbers
+
+tcb_transactions
+
+tcb_webhook_logs
+
+tcb_reconciliation_logs
+
+tcb_api_logs
+
+tcb_failed_requests
+
+---
+
+# Service Classes
+
+Create services
+
+ReferenceService
+
+PaymentService
+
+WebhookService
+
+DisbursementService
+
+ReconciliationService
+
+BranchService
+
+AccountResolverService
+
+SignatureService
+
+ApiClient
+
+---
+
+# HTTP Client
+
+Use Laravel HTTP Client
+
+Features
+
+Automatic Retry
+
+Timeout
+
+Rate Limiting
+
+Backoff
+
+Request Logging
+
+Response Logging
+
+Exception Handling
+
+---
+
+# API Endpoints
+
+Implement wrappers for
+
+## Reference Creation
+
+POST
+
+/public/api/reference/{API_KEY}
+
+Parameters
+
+partnerCode
+
+profileID
+
+reference
+
+name
+
+mobile
+
+message
+
+---
+
+## Reference Cancellation
+
+POST
+
+/decline/{API_KEY}
+
+---
+
+## Reconciliation
+
+POST
+
+/conciliation/{API_KEY}
+
+---
+
+## Future APIs
+
+The architecture must allow new endpoints without modifying existing services.
+
+Use Interfaces.
+
+---
+
+# Webhook Processing
+
+Provide
+
+POST
+
+/webhooks/tcb
+
+Features
+
+Signature Verification
+
+Authentication
+
+Validation
+
+Duplicate Prevention
+
+Queue Processing
+
+Automatic Events
+
+Automatic Database Recording
+
+Retry
+
+Dead Letter Queue Support
+
+---
+
+# Facade
+
+Provide
+
+```php
+TCB::createReference()
+
+TCB::cancelReference()
+
+TCB::reconciliation()
+
+TCB::verifyPayment()
+
+TCB::branch()
+
+TCB::account()
+
+TCB::disburseLoan()
+```
+
+---
+
+# Fluent Builder
+
+Support
+
+```php
+TCB::branch($branch)
+
+    ->collectionAccount()
+
+    ->createReference(...)
+
+TCB::branch($branch)
+
+    ->disbursementAccount()
+
+    ->disburse(...)
+```
+
+---
+
+# Models
+
+Create Eloquent models
+
+Branch
+
+BankAccount
+
+ReferenceNumber
+
+PaymentTransaction
+
+WebhookLog
+
+ReconciliationLog
+
+ApiLog
+
+---
+
+# Events
+
+Dispatch
+
+ReferenceCreated
+
+ReferenceCancelled
+
+PaymentReceived
+
+PaymentFailed
+
+PaymentVerified
+
+LoanDisbursed
+
+WebhookProcessed
+
+---
+
+# Listeners
+
+Default listeners
+
+Update Payment Status
+
+Update Loan
+
+Generate Receipt
+
+Store Logs
+
+Notify Application
+
+---
+
+# Exception Classes
+
+Create
+
+AuthenticationException
+
+InvalidReferenceException
+
+PaymentFailedException
+
+WebhookVerificationException
+
+ApiException
+
+BranchNotFoundException
+
+AccountNotFoundException
+
+---
+
+# Testing
+
+Include
+
+Feature Tests
+
+Unit Tests
+
+HTTP Fake Tests
+
+Webhook Tests
+
+Queue Tests
+
+Database Tests
+
+Mock API Tests
+
+---
+
+# Documentation
+
+Generate
+
+Installation Guide
+
+Configuration Guide
+
+Branch Configuration Guide
+
+Multiple Account Guide
+
+Webhook Guide
+
+Reference Number Guide
+
+Loan Integration Guide
+
+Reconciliation Guide
+
+Examples
+
+Troubleshooting
+
+Upgrade Guide
+
+---
+
+# Important Business Rules
+
+1. Only API credentials shall be configured in `.env`.
+
+2. Branch bank accounts must be stored in the database.
+
+3. One branch can own multiple TCB accounts.
+
+4. The package must automatically resolve the correct account based on the transaction type.
+
+5. The package must never hardcode account numbers or profile IDs.
+
+6. All requests must be branch-aware.
+
+7. All API operations must be logged.
+
+8. Webhooks must be idempotent and safely reprocessable.
+
+9. The architecture must support future TCB CMS APIs without breaking existing functionality.
+
+10. The package should be generic enough to be reused by loan management systems, ERP systems, school management systems, utility billing systems, hospital systems, SACCO systems, and any Laravel application integrating with TCB Bank CMS services.
