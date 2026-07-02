@@ -17,6 +17,18 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Iprote\TcbCms\Services\AccountResolverService account()
  * @method static \Iprote\TcbCms\Services\ReferenceService references()
  * @method static \Iprote\TcbCms\Services\PaymentService payments()
+ * @method static \Iprote\TcbCms\Services\PartnerApiService partners()
+ * @method static array authenticate(?string $clientId = null, ?string $clientSecret = null)
+ * @method static array botFsps()
+ * @method static array accountLookup(array $payload)
+ * @method static array aggregatorPayment(array $payload)
+ * @method static array utilityPayment(array $payload)
+ * @method static array airtimePayment(array $payload)
+ * @method static array gepgLookup(array $payload)
+ * @method static array gepgPayment(array $payload)
+ * @method static array deposit(array $payload)
+ * @method static array withdrawal(array $payload)
+ * @method static array transactionInquiry(string $reference)
  *
  * @see \Iprote\TcbCms\TCBManager
  */

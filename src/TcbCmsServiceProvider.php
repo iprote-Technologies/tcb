@@ -17,6 +17,7 @@ use Iprote\TcbCms\Services\ApiClient;
 use Iprote\TcbCms\Services\BranchService;
 use Iprote\TcbCms\Services\DisbursementService;
 use Iprote\TcbCms\Services\PaymentService;
+use Iprote\TcbCms\Services\PartnerApiService;
 use Iprote\TcbCms\Services\ReconciliationService;
 use Iprote\TcbCms\Services\ReferenceService;
 use Iprote\TcbCms\Services\SignatureService;
@@ -38,6 +39,7 @@ class TcbCmsServiceProvider extends ServiceProvider
         $this->app->singleton(BranchService::class);
         $this->app->singleton(ReferenceService::class);
         $this->app->singleton(PaymentService::class);
+        $this->app->singleton(PartnerApiService::class);
         $this->app->singleton(WebhookService::class);
         $this->app->singleton(DisbursementService::class);
         $this->app->singleton(ReconciliationService::class);
@@ -47,6 +49,7 @@ class TcbCmsServiceProvider extends ServiceProvider
             return new TCBManager(
                 $app->make(ReferenceService::class),
                 $app->make(PaymentService::class),
+                $app->make(PartnerApiService::class),
                 $app->make(ReconciliationService::class),
                 $app->make(DisbursementService::class),
                 $app->make(BranchService::class),

@@ -17,4 +17,10 @@ interface ApiClientInterface
      * @return array<string, mixed>
      */
     public function postJson(EndpointInterface $endpoint, array $payload, ?string $branchCode = null): array;
+
+    /**
+     * @param  array<string, mixed>  $query
+     * @return array<string, mixed>
+     */
+    public function get(EndpointInterface $endpoint, array $query = [], ?string $branchCode = null): array;
 }

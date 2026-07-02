@@ -18,6 +18,10 @@ return [
 
     'partner_code' => env('TCB_PARTNER_CODE'),
 
+    'client_id' => env('TCB_CLIENT_ID'),
+
+    'client_secret' => env('TCB_CLIENT_SECRET'),
+
     'base_url' => env('TCB_BASE_URL', 'https://partners.tcbbank.co.tz'),
 
     'reconciliation_url' => env('TCB_RECONCILIATION_URL', 'https://partners.tcbbank.co.tz:8444'),

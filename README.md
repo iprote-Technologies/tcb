@@ -51,6 +51,8 @@ Only API credentials belong in `.env`. Bank accounts are stored in the database.
 ```env
 TCB_API_KEY=your-api-key
 TCB_PARTNER_CODE=PART-ABC
+TCB_CLIENT_ID=partner-xyz
+TCB_CLIENT_SECRET=your-client-secret
 TCB_BASE_URL=https://partners.tcbbank.co.tz
 TCB_RECONCILIATION_URL=https://partners.tcbbank.co.tz:8444
 TCB_WEBHOOK_SECRET=your-webhook-secret
@@ -140,6 +142,23 @@ TCB::reconciliation('BR-A', '2026-01-01', '2026-01-31');
 $transaction = TCB::verifyPayment('999ABC123456789');
 ```
 
+### TCB Partners APIs (v1.2)
+
+```php
+$token = TCB::authenticate();
+$fsps = TCB::botFsps();
+$lookup = TCB::accountLookup([
+    'accountNo' => '110210001001',
+    'institutionCode' => '048',
+]);
+$transfer = TCB::aggregatorPayment([
+    'reference' => '9099959804450',
+    'msisdn' => '2556578717069',
+    'amount' => '390.00',
+    'description' => 'TIPS transfer payment',
+]);
+```
+
 ## Webhook (IPN)
 
 TCB sends payment notifications to:
@@ -171,6 +190,17 @@ Available events: `ReferenceCreated`, `ReferenceCancelled`, `PaymentReceived`, `
 | Create Reference | `POST /public/api/reference/{API_KEY}` |
 | Cancel Reference | `POST /public/api/reference/decline/{API_KEY}` |
 | Reconciliation | `POST /public/api/reconciliation/{API_KEY}` |
+| Auth (Bearer token) | `POST /tcb/partners/auth/authenticate` |
+| BOT FSP list | `GET /tcb/partners/tips/fsps` |
+| Account lookup | `POST /tcb/partners/tips-lookup` |
+| Aggregator payment | `POST /tcb/partners/aggregator/payment` |
+| Utility payment | `POST /tcb/partners/utility/payment` |
+| Utility airtime | `POST /tcb/partners/utility/airtime` |
+| GePG lookup | `POST /tcb/partners/utility/gepgLookUp` |
+| GePG payment | `POST /tcb/partners/gepg/payment` |
+| Deposit | `POST /tcb/partners/deposit` |
+| Withdrawal | `POST /tcb/partners/withdrawal` |
+| Transaction inquiry | `GET /tcb/partners/tqs?reference=...` |
 
 ## Architecture
 

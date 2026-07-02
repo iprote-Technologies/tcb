@@ -21,12 +21,17 @@ class ApiClient implements ApiClientInterface
 {
     public function post(EndpointInterface $endpoint, array $payload, ?string $branchCode = null): array
     {
-        return $this->request($endpoint, $payload, $branchCode, false);
+        return $this->request($endpoint, $payload, $branchCode, 'POST', false);
     }
 
     public function postJson(EndpointInterface $endpoint, array $payload, ?string $branchCode = null): array
     {
-        return $this->request($endpoint, $payload, $branchCode, true);
+        return $this->request($endpoint, $payload, $branchCode, 'POST', true);
+    }
+
+    public function get(EndpointInterface $endpoint, array $query = [], ?string $branchCode = null): array
+    {
+        return $this->request($endpoint, $query, $branchCode, 'GET', true);
     }
 
     /**
@@ -37,6 +42,7 @@ class ApiClient implements ApiClientInterface
         EndpointInterface $endpoint,
         array $payload,
         ?string $branchCode,
+        string $method,
         bool $asJson,
     ): array {
         $this->enforceRateLimit();
@@ -47,9 +53,13 @@ class ApiClient implements ApiClientInterface
 
         try {
             $request = $this->buildRequest();
-            $response = $asJson || $endpoint->usesJson()
-                ? $request->post($url, $payload)
-                : $request->asForm()->post($url, $payload);
+            $httpMethod = strtoupper($method);
+            $response = match ($httpMethod) {
+                'GET' => $request->get($url, $payload),
+                default => $asJson || $endpoint->usesJson()
+                    ? $request->post($url, $payload)
+                    : $request->asForm()->post($url, $payload),
+            };
 
             $responseTimeMs = (int) ((microtime(true) - $startedAt) * 1000);
             $body = $response->json() ?? ['raw' => $response->body()];
@@ -63,6 +73,7 @@ class ApiClient implements ApiClientInterface
                 httpStatus: $response->status(),
                 responseTimeMs: $responseTimeMs,
                 success: $response->successful() && $this->isSuccessStatus($parsed),
+                method: $httpMethod,
             );
 
             if (! $response->successful()) {
@@ -77,7 +88,7 @@ class ApiClient implements ApiClientInterface
 
             return $parsed;
         } catch (ConnectionException $e) {
-            $this->handleFailure($endpoint, $payload, $branchCode, $e->getMessage(), 2);
+            $this->handleFailure($endpoint, $payload, $branchCode, $e->getMessage(), $method, 2);
 
             throw new ApiException(
                 message: 'Connection error while contacting TCB API.',
@@ -85,7 +96,7 @@ class ApiClient implements ApiClientInterface
                 previous: $e,
             );
         } catch (RequestException $e) {
-            $this->handleFailure($endpoint, $payload, $branchCode, $e->getMessage());
+            $this->handleFailure($endpoint, $payload, $branchCode, $e->getMessage(), $method);
 
             throw new ApiException(
                 message: $e->getMessage(),
@@ -182,6 +193,7 @@ class ApiClient implements ApiClientInterface
         ?int $httpStatus,
         int $responseTimeMs,
         bool $success,
+        string $method = 'POST',
         ?string $errorMessage = null,
     ): void {
         if (! config('tcb.logging', true)) {
@@ -193,11 +205,12 @@ class ApiClient implements ApiClientInterface
             'branch_code' => $branchCode,
             'success' => $success,
             'response_time_ms' => $responseTimeMs,
+            'method' => $method,
         ]);
 
         ApiLog::query()->create([
             'endpoint' => $endpoint,
-            'method' => 'POST',
+            'method' => strtoupper($method),
             'branch_code' => $branchCode,
             'request_payload' => $this->redactSensitive($requestPayload),
             'response_payload' => $responsePayload,
@@ -213,6 +226,7 @@ class ApiClient implements ApiClientInterface
         array $payload,
         ?string $branchCode,
         string $message,
+        string $method = 'POST',
         ?int $statusCode = null,
     ): void {
         $this->logRequest(
@@ -224,6 +238,7 @@ class ApiClient implements ApiClientInterface
             responseTimeMs: 0,
             success: false,
             errorMessage: $message,
+            method: $method,
         );
 
         FailedRequest::query()->create([
